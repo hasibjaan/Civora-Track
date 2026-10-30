@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+import { SITE_NAME, SITE_TAGLINE } from "@/components/brand";
 import { TrackLookup } from "@/components/track-lookup";
 import { primaryButton } from "@/components/ui/button-styles";
 
@@ -46,17 +47,17 @@ export default function Home() {
       <section aria-labelledby="hero-heading" className="border-b border-brand-100 bg-brand-50">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-12 md:py-16">
           <p className="text-sm font-semibold tracking-wide text-brand-700 uppercase">
-            For your neighbourhood
+            {SITE_NAME}
           </p>
           <h1
             id="hero-heading"
             className="max-w-3xl text-4xl font-semibold tracking-tight text-zinc-950 md:text-5xl"
           >
-            Report a civic problem. See it fixed.
+            {SITE_TAGLINE}
           </h1>
           <p className="max-w-2xl text-lg text-zinc-700">
-            Potholes, blocked drains, broken streetlights and garbage piles reach the right team
-            faster, and you can follow every step.
+            Report a civic problem and see it fixed. Potholes, blocked drains, broken streetlights
+            and garbage piles reach the right team faster, and you can follow every step.
           </p>
         </div>
       </section>

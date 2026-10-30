@@ -1,9 +1,12 @@
-# CivicTrack
+# Civora
+
+**Your City. Your Voice. Your Change**
 
 An AI-assisted platform that turns scattered citizen reports into a prioritized, explained and
 trackable work queue for local officers. Built with Next.js 16 for the PromptWars x ASTRA hackathon.
 
 - **Problem statement:** [PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md)
+- **Deploy it, with shared data for every device:** [docs/DEPLOY.md](docs/DEPLOY.md)
 - **Demo script (about 5 minutes):** [docs/DEMO.md](docs/DEMO.md)
 - **Limitations and honesty note:** [docs/LIMITATIONS.md](docs/LIMITATIONS.md)
 - **Build plan:** [PLAN.md](PLAN.md)
@@ -21,7 +24,7 @@ trackable work queue for local officers. Built with Next.js 16 for the PromptWar
 
 ## Quick start (from a clean checkout)
 
-Requirements: Node.js 20.9 or newer, and npm.
+Requirements: Node.js 22 or newer, and npm.
 
 ```bash
 npm install
@@ -29,6 +32,9 @@ cp .env.example .env.local     # then set ADMIN_PASSWORD (12+ characters)
 npm run build
 npm run start                  # http://localhost:3000
 ```
+
+This keeps data in `data/` on your computer. To share reports between devices, connect Supabase
+and deploy: [docs/DEPLOY.md](docs/DEPLOY.md).
 
 - Start at http://localhost:3000. The landing page has one button for each kind of visitor.
 - Citizens: **Report a problem**, or enter a tracking ID to follow a report. No account is needed.
@@ -40,16 +46,17 @@ has no development overlay.
 
 ## Verification
 
-| Check                                                     | Result                                                                                                                                                           |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit tests (`npm test`)                                   | 247 passing across 34 files, including the seed data's duplicate groups, urgent safety cases, and the officer rules                                              |
-| Lint, typecheck, formatting                               | Pass, with zero warnings allowed                                                                                                                                 |
-| Production build                                          | Passes with zero warnings                                                                                                                                        |
-| Dependency audit                                          | Zero known vulnerabilities                                                                                                                                       |
-| axe-core accessibility audit                              | Zero violations on all seven screens checked, including colour contrast and the officer pages signed in                                                          |
-| Lighthouse, mobile (`/report`)                            | Performance 91, accessibility 100, best practices 100, SEO 100                                                                                                   |
-| Lighthouse, mobile (`/track`)                             | Performance 96, accessibility 100, best practices 100. SEO is lower on purpose: tracking pages are kept out of search engines because they hold personal details |
-| Browser flows, headless Chrome at phone and desktop sizes | Submission with photo, the full officer workflow, and the citizen's view after an officer action                                                                 |
+| Check                                                     | Result                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit tests (`npm test`)                                   | 280 passing across 37 files, including the seed data's duplicate groups, urgent safety cases, the officer rules, and one shared contract that both stores pass                                                                                                                                                                                                                                                          |
+| Shared storage (Supabase)                                 | The SQL ran on Postgres 17 with Supabase's role names. Two app servers shared one database through a local stand-in for Supabase's API: a report sent to one appeared on the other, and two officers saving one report at the same moment both kept their change. On a real Supabase project, the table and private bucket were created, the demo reports were seeded, and the officer and citizen pages loaded from it |
+| Lint, typecheck, formatting                               | Pass, with zero warnings allowed                                                                                                                                                                                                                                                                                                                                                                                        |
+| Production build                                          | Passes with zero warnings                                                                                                                                                                                                                                                                                                                                                                                               |
+| Dependency audit                                          | Zero known vulnerabilities                                                                                                                                                                                                                                                                                                                                                                                              |
+| axe-core accessibility audit                              | Zero violations on all seven screens checked, including colour contrast and the officer pages signed in                                                                                                                                                                                                                                                                                                                 |
+| Lighthouse, mobile (`/report`)                            | Performance 91, accessibility 100, best practices 100, SEO 100                                                                                                                                                                                                                                                                                                                                                          |
+| Lighthouse, mobile (`/track`)                             | Performance 96, accessibility 100, best practices 100. SEO is lower on purpose: tracking pages are kept out of search engines because they hold personal details                                                                                                                                                                                                                                                        |
+| Browser flows, headless Chrome at phone and desktop sizes | Submission with photo, the full officer workflow, and the citizen's view after an officer action                                                                                                                                                                                                                                                                                                                        |
 
 Lighthouse and axe results were measured on the production build with the seed data.
 
@@ -65,14 +72,42 @@ src/domain/       Pure business rules: schemas, status workflow, duplicates, clu
                   priority, officer rules, briefs (no I/O, no React)
 src/ai/           Language-model boundary (server-only): classification, summaries, briefs,
                   and the rules fallback
-src/data/         Storage (server-only): JSON report store, photo files, seed data
+src/data/         Storage (server-only): Supabase or local files, chosen by settings; seed data
+src/maps/         Satellite imagery from Google Earth Engine (server-only)
 src/components/   UI: report form, officer forms and dashboard, citizen timeline
 src/lib/          Request helpers: body size limit, rate limit, image resizing, sign-in check
+supabase/         The SQL that creates the reports table and the photo bucket
 tests/            Unit tests, mirroring src/
 ```
 
 The domain layer imports nothing from the rest of the app, so every rule can be tested
 without a server or a browser.
+
+## Storage and sync across devices
+
+Every phone and laptop talks to the same server, and the server keeps one copy of the data. A
+report sent from a phone is stored at once, and any officer who opens or refreshes the dashboard
+sees it. When an officer acts, the citizen's tracking page shows the change on its next load.
+
+- **Deployed (Supabase):** each report is a row in a Postgres table, and photos sit in a private
+  Storage bucket. Several servers can run at once, because the reports live in the database,
+  not in any one server.
+  [supabase/migrations](supabase/migrations) creates both, and [docs/DEPLOY.md](docs/DEPLOY.md)
+  sets them up.
+- **On one computer (files):** without Supabase settings, reports go to `data/reports.json` and
+  photos to `data/photos/`. This needs no setup, and suits one server only.
+
+Both stores pass the same tests and follow the same rules:
+
+- A change is computed from the stored copy, never from what a page showed earlier. Supabase saves
+  a change only if the report's version is unchanged since it was read, and otherwise applies it
+  again to the newer copy, so two officers saving at once both keep their change.
+- A refused change is never written, and every report is validated when it is saved and read.
+- Analysis runs once, when a report is submitted, and is stored with it.
+- An empty store is filled with the 40 demo reports, dated from the moment it is filled.
+
+Pages show the data as it was when they loaded. They do not update by themselves: refresh to see
+changes made on another device.
 
 ## AI approach
 
@@ -104,6 +139,11 @@ without a server or a browser.
   `ADMIN_PASSWORD` is at least 12 characters. Officer changes are server actions, which Next.js
   checks for a matching origin, so cross-site requests are rejected.
 - **Officer actions** check the sign-in themselves, not only the proxy's path rules. Submissions must be JSON, which stops cross-site HTML forms from posting reports.
+- **Database:** only the server talks to Supabase, with a secret key that never reaches the
+  browser. The reports table has row level security on with no policies, and the public roles have
+  no privileges, so the public key cannot read it. The server can read, add and update reports, but
+  not delete them. The photo bucket is private. Errors are logged by code, never with database
+  details, which can contain report text.
 - **Citizen privacy:** the tracking page is built by one function that leaves out internal
   decisions, officer names, scores, coordinates, and the ID of any report a duplicate was merged
   into. Tracking pages are kept out of search engines.
@@ -125,8 +165,9 @@ layer button switches between satellite and the OpenStreetMap street map. This i
 not a live camera feed.
 
 To turn it on, you need a Google Cloud project registered with Earth Engine and a service account
-with access to it. Put the key file in `secrets/` (git-ignored) and set
-`GOOGLE_EARTH_ENGINE_PROJECT` and `GOOGLE_EARTH_ENGINE_KEY_FILE`. Without them, or if Earth Engine
+with access to it. Set `GOOGLE_EARTH_ENGINE_PROJECT`, and either put the key file in `secrets/`
+(git-ignored) and set `GOOGLE_EARTH_ENGINE_KEY_FILE`, or paste the key's JSON into
+`GOOGLE_EARTH_ENGINE_KEY`, which is the way to do it on Vercel. Without them, or if Earth Engine
 fails, the map shows the street map only, and nothing else changes.
 
 ## Accessibility
@@ -182,15 +223,21 @@ See [.env.example](.env.example). Put real values in `.env.local`, which is git-
 
 - `ADMIN_PASSWORD` (required for the officer area): at least 12 characters.
 - `ADMIN_USERNAME` (optional): defaults to `officer`.
+- `SUPABASE_URL` and `SUPABASE_SECRET_KEY` (required when deployed): shared storage for every
+  device. Set both or neither. Without them, data stays in `data/` on this computer.
 - `ANTHROPIC_API_KEY` (optional): enables Claude for categories, summaries and briefs.
-- `NEXT_PUBLIC_APP_NAME` (optional): the page title.
-- `GOOGLE_EARTH_ENGINE_PROJECT` and `GOOGLE_EARTH_ENGINE_KEY_FILE` (optional): turn on satellite
-  imagery on the officer map.
+- `GOOGLE_EARTH_ENGINE_PROJECT`, with `GOOGLE_EARTH_ENGINE_KEY_FILE` or `GOOGLE_EARTH_ENGINE_KEY`
+  (optional): turn on satellite imagery on the officer map.
 
-Runtime data lives in `data/` and is git-ignored. Delete it to reseed the demo with recent data.
+`/api/health` reports which storage the server uses: `"storage":"supabase"` or `"files"`.
+
+To reseed the demo with recent data, delete `data/` (files), or run
+`truncate table public.reports;` in the Supabase SQL editor (Supabase). The next dashboard visit
+refills the store.
 
 ## Deployment
 
-Not deployed. Next.js deploys to Vercel with default settings, but the JSON store and the
-in-memory rate limiter only suit a single server. Read [docs/LIMITATIONS.md](docs/LIMITATIONS.md)
-before deploying anywhere public. Use HTTPS, because officer sign-in uses Basic credentials.
+Vercel for the app, and Supabase for the data. The step-by-step guide is
+[docs/DEPLOY.md](docs/DEPLOY.md). On Vercel, the build refuses to finish without the Supabase
+settings, because files saved there are neither kept nor shared. Read
+[docs/LIMITATIONS.md](docs/LIMITATIONS.md) before deploying anywhere public.

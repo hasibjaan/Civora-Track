@@ -1,7 +1,3 @@
-import { mkdtemp, rm, writeFile } from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { requestSentinelTileUrl } from "@/maps/earth-engine";
@@ -84,35 +80,22 @@ describe("createSatelliteSource", () => {
 });
 
 describe("requestSentinelTileUrl", () => {
-  let dir: string | undefined;
-
-  afterEach(async () => {
-    if (dir) await rm(dir, { recursive: true, force: true });
-  });
-
-  it("rejects a key file that is not a service-account key", async () => {
-    dir = await mkdtemp(path.join(os.tmpdir(), "ee-key-"));
-    const keyFile = path.join(dir, "key.json");
-    await writeFile(keyFile, JSON.stringify({ hello: "world" }));
+  it("rejects a key that is not a service-account key", async () => {
+    const key = JSON.stringify({ hello: "world" });
 
     await expect(
-      requestSentinelTileUrl({ keyFile, project: "demo-project" }, new Date()),
+      requestSentinelTileUrl({ key, project: "demo-project" }, new Date()),
     ).rejects.toThrow();
   });
 
   it("rejects a service-account key whose private key is not valid, through the real client", async () => {
-    dir = await mkdtemp(path.join(os.tmpdir(), "ee-key-"));
-    const keyFile = path.join(dir, "key.json");
-    await writeFile(
-      keyFile,
-      JSON.stringify({
-        client_email: "demo@demo.iam.gserviceaccount.com",
-        private_key: "not-a-key",
-      }),
-    );
+    const key = JSON.stringify({
+      client_email: "demo@demo.iam.gserviceaccount.com",
+      private_key: "not-a-key",
+    });
 
     await expect(
-      requestSentinelTileUrl({ keyFile, project: "demo-project" }, new Date()),
+      requestSentinelTileUrl({ key, project: "demo-project" }, new Date()),
     ).rejects.toThrow();
   }, 20_000);
 });

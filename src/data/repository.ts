@@ -39,7 +39,8 @@ interface Snapshot {
 const ReportListSchema = z.array(ReportSchema);
 
 /**
- * A repository backed by one JSON file. Good enough for a single-server demo.
+ * A repository backed by one JSON file, for running on a single computer. Deployments that
+ * serve several devices use the Supabase repository instead (supabase-reports.ts).
  *
  * - Writes run one at a time, so two requests cannot overwrite each other's changes.
  * - Each write goes to a temporary file and is then renamed, so a crash cannot leave a
@@ -47,6 +48,7 @@ const ReportListSchema = z.array(ReportSchema);
  * - Reads are served from memory and re-parsed only when the file's size or modified time
  *   changes. Checking the file's metadata is cheap, and it stays correct even if another
  *   process writes the file.
+ * - Reports are validated against ReportSchema when written and when read.
  */
 export function createJsonReportRepository({
   filePath,
@@ -66,7 +68,7 @@ export function createJsonReportRepository({
 
   async function seedFile(): Promise<readonly Report[]> {
     try {
-      const reports = seed();
+      const reports = ReportListSchema.parse(seed());
       await writeAll(reports);
       return reports;
     } finally {
@@ -115,12 +117,13 @@ export function createJsonReportRepository({
 
     create: (report) =>
       serialize(async () => {
+        const stored = ReportSchema.parse(report);
         const reports = await loadReports();
-        if (reports.some((existing) => existing.id === report.id)) {
-          throw new Error(`A report with id ${report.id} already exists.`);
+        if (reports.some((existing) => existing.id === stored.id)) {
+          throw new Error(`A report with id ${stored.id} already exists.`);
         }
-        await writeAll([...reports, report]);
-        return report;
+        await writeAll([...reports, stored]);
+        return stored;
       }),
 
     modify: (id, change) =>
@@ -134,10 +137,9 @@ export function createJsonReportRepository({
         const result = change(reports[index]);
         if (!result.ok) return result;
 
-        await writeAll(
-          reports.map((report, position) => (position === index ? result.report : report)),
-        );
-        return result;
+        const changed = ReportSchema.parse(result.report);
+        await writeAll(reports.map((report, position) => (position === index ? changed : report)));
+        return { ok: true, report: changed };
       }),
   };
 }

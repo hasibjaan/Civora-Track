@@ -116,7 +116,8 @@ writing one. The pattern this project uses is in `src/app/admin/reports/[id]/act
 - Share form control styles from `src/components/report-form/form-field.tsx`
   (`inputClassName`, `FieldLabel`, `FieldError`) so every input looks and behaves the same.
 - Use `lucide-react` icons, marked `aria-hidden` when a text label is present.
-- Support dark mode with `dark:` variants, matching `src/app/page.tsx`.
+- Use the light theme's tokens (`canvas`, `brand-50` to `brand-900`) and the shared button
+  styles in `src/components/ui/button-styles.ts`. Do not add `dark:` classes.
 - Use a `<section>` only with a heading it is labelled by. Use a `<div>` for content
   inside another labelled region, or the page gets duplicate landmarks.
 
@@ -136,6 +137,19 @@ writing one. The pattern this project uses is in `src/app/admin/reports/[id]/act
    `src/application/history.ts`, and decide whether citizens should see it in
    `src/application/citizen-view.ts`. Internal decisions are hidden by default.
 
+## 7b. Change what a report stores
+
+Both stores (Supabase and files) keep each report whole, as JSON, and validate it against
+`ReportSchema` on every read and write.
+
+1. Add the field to `ReportSchema` in `src/domain/schemas.ts`. Make it optional, so reports
+   saved before the change still pass validation. Types follow from the schema.
+2. A new field inside a report needs no database change. Only a new column, index or table
+   does: add a new file in `supabase/migrations/` (never edit one that has run), and update
+   `src/data/supabase-schema.ts` to match. Keep the table closed to `anon` and `authenticated`.
+3. Run `npm test`. Both stores run the same contract
+   (`tests/data/report-repository-contract.ts`), and both must still pass.
+
 ## 8. Pre-demo checklist
 
 Run these and fix anything that fails:
@@ -149,6 +163,10 @@ npm run start   # test the production build at http://localhost:3000
 
 Then manually walk through the core user flow once on a fresh browser tab.
 Check the mobile width too.
+
+For the deployed site, reset the demo data shortly before judging: run
+`truncate table public.reports;` in the Supabase SQL editor, then open the officer dashboard
+once. Check that `/api/health` shows `"storage":"supabase"`.
 
 ---
 

@@ -1,5 +1,5 @@
-// The Earth Engine client has no published types. This declares only the calls CivicTrack
-// uses, with the signatures read from @google/earthengine 1.7.x.
+// The Earth Engine client has no published types. This declares only the calls Civora uses,
+// with the signatures read from @google/earthengine 1.7.x.
 declare module "@google/earthengine" {
   interface ServiceAccountKey {
     client_email: string;

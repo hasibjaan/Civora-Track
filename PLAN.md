@@ -1,4 +1,4 @@
-# PLAN.md: CivicTrack (8-hour build)
+# PLAN.md: Civora (8-hour build)
 
 Build plan for the PromptWars x ASTRA hackathon. Source: [PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md).
 

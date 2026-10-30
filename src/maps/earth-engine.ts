@@ -1,12 +1,10 @@
 import "server-only";
 
-import { readFile } from "node:fs/promises";
-
 import { z } from "zod";
 
 export interface EarthEngineConfig {
-  /** Path to a service-account key file for a Cloud project registered with Earth Engine. */
-  keyFile: string;
+  /** A service-account key, as JSON, for a Cloud project registered with Earth Engine. */
+  key: string;
   /** The Google Cloud project ID registered with Earth Engine. */
   project: string;
 }
@@ -34,7 +32,7 @@ export async function requestSentinelTileUrl(
   config: EarthEngineConfig,
   now: Date,
 ): Promise<string> {
-  const key = ServiceAccountKeySchema.parse(JSON.parse(await readFile(config.keyFile, "utf8")));
+  const key = ServiceAccountKeySchema.parse(JSON.parse(config.key));
   // Loaded only when imagery is configured, so the large client is never loaded otherwise.
   const ee = (await import("@google/earthengine")).default;
 

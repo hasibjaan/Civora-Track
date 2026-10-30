@@ -2,18 +2,42 @@ import "server-only";
 
 import path from "node:path";
 
-import { createPhotoStore } from "./photos";
-import { createJsonReportRepository } from "./repository";
+import { createFilePhotoStore, type PhotoStore } from "./photos";
+import { createJsonReportRepository, type ReportRepository } from "./repository";
 import { SEED_SPECS } from "./seed-data";
 import { buildSeedReports } from "./seed";
+import { storageConfig } from "./storage-config";
+import { createServerSupabase } from "./supabase-client";
+import { createSupabasePhotoStore } from "./supabase-photos";
+import { createSupabaseReportRepository } from "./supabase-reports";
 
-const DATA_DIRECTORY = path.join(process.cwd(), "data");
+const config = storageConfig();
 
-/** The app's report store. Runtime data lives in data/ and is git-ignored. */
-export const reportRepository = createJsonReportRepository({
-  filePath: path.join(DATA_DIRECTORY, "reports.json"),
-  // Seeded at first use, so the demo data is recent whenever data/ is reset.
-  seed: () => buildSeedReports(SEED_SPECS, new Date()),
-});
+// Seeded at first use, so the demo data is recent whenever the store is reset.
+const seed = () => buildSeedReports(SEED_SPECS, new Date());
 
-export const photoStore = createPhotoStore(path.join(DATA_DIRECTORY, "photos"));
+function createStores(): { reportRepository: ReportRepository; photoStore: PhotoStore } {
+  if (config.kind === "supabase") {
+    const client = createServerSupabase(config);
+    return {
+      reportRepository: createSupabaseReportRepository({ client, seed }),
+      photoStore: createSupabasePhotoStore(client),
+    };
+  }
+
+  // Runtime data lives in data/, which is git-ignored.
+  const directory = path.join(process.cwd(), "data");
+  return {
+    reportRepository: createJsonReportRepository({
+      filePath: path.join(directory, "reports.json"),
+      seed,
+    }),
+    photoStore: createFilePhotoStore(path.join(directory, "photos")),
+  };
+}
+
+/** Where reports and photos are kept: "supabase", shared by every device, or local "files". */
+export const storageKind = config.kind;
+
+/** The app's report and photo stores. */
+export const { reportRepository, photoStore } = createStores();

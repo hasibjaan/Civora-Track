@@ -7,9 +7,11 @@ next. It is written for judges, officers and anyone deciding whether to trust th
 
 - **Report capture.** Citizens submit a description, a category, a location (device GPS, or
   typed coordinates) and a landmark, with an optional photo. Photos are resized in the
-  browser, checked by their file signature on the server, and stored as files.
-- **Storage.** Reports live in a JSON file on the server (`data/reports.json`). Writes are
-  serialized and atomic, so concurrent updates cannot overwrite each other.
+  browser and checked by their file signature on the server.
+- **Storage shared by every device.** When deployed, reports are rows in a Supabase Postgres
+  table and photos are in a private Supabase Storage bucket, so every phone and laptop sees the
+  same data. Saves are checked against a version number, so concurrent updates cannot overwrite
+  each other. Without Supabase settings, the app keeps the same data in files on one computer.
 - **Analysis.** Each report gets a category, a one-sentence summary, a list of likely
   duplicates, and a priority score with the reason for each point. Without an AI key, this
   runs on keyword and distance rules. With a key, Claude proposes the category and summary.
@@ -23,7 +25,8 @@ next. It is written for judges, officers and anyone deciding whether to trust th
 - **Security controls.** The officer area is behind HTTP Basic sign-in and fails closed
   without a strong password. Responses carry a Content-Security-Policy and other security
   headers. Requests are size-capped while streaming and submissions are rate-limited. The
-  photo endpoint validates IDs before touching the filesystem.
+  photo endpoint validates IDs before touching storage. The database table is closed to
+  everyone except the app's server, and the photo bucket is private.
 
 ## What is mocked
 
@@ -69,9 +72,13 @@ next. It is written for judges, officers and anyone deciding whether to trust th
 - **Tracking IDs are the only access control for citizens.** Anyone with a tracking ID can see
   that report's status, description and photo. The IDs are 48 random bits, which is hard to
   guess, but a leaked ID exposes that report. Citizens should be told to keep it private.
-- **The rate limiter is in memory and trusts `X-Forwarded-For`.** It works for one server
-  behind a trusted proxy. It can be bypassed by a client that talks to the server directly
-  with a forged header, and it does not share state across servers.
+- **The rate limiter is in memory and trusts `X-Forwarded-For`.** It counts per server
+  instance, and Vercel may run several, so a determined flood can send more than 10 reports
+  in 10 minutes. It also trusts the forwarded address, which Vercel sets but a server reached
+  directly would not. A firewall rule for `POST /api/reports`, or a shared counter, would close
+  this.
+- **Pages do not update by themselves.** A dashboard left open does not show a report sent a
+  minute ago until it is refreshed. The data is shared at once; only the open page is stale.
 - **Basic credentials are only encoded.** Use HTTPS in any real deployment.
 - **Content-Security-Policy allows inline scripts.** Next.js needs them for hydration. A nonce
   based policy would be stricter.
@@ -95,18 +102,31 @@ next. It is written for judges, officers and anyone deciding whether to trust th
   reports, not for a city.
 - **Clustering is quadratic.** It compares every pair of open reports. That is fine for
   hundreds of reports. A city-scale deployment would need a spatial index.
-- **The whole report file is held in memory.** It is re-read only when it changes, but it
-  must fit in memory.
+- **Every page reads every report.** The dashboard needs all open reports for clustering and
+  priorities, so each view reads the whole table from Supabase, 1,000 rows per request. That is
+  one request for this demo, and fine for thousands of reports. The file store keeps the reports
+  in memory and re-reads the file only when it changes.
 - **Model calls can slow the officer dashboard.** Briefs are written in parallel with a
   10-second timeout per call and cached for 30 minutes. The page shows a loading state while
   this happens.
 
 ## What we verified, and what we did not
 
-- **Verified:** the full test suite (222 unit tests), lint, typecheck, a production build with
+- **Verified:** the full test suite (280 unit tests), lint, typecheck, a production build with
   no warnings, zero known dependency vulnerabilities, axe-core on every screen with zero
   violations, Lighthouse on the public pages, and the officer and citizen flows in headless
   Chrome at phone and desktop widths.
+- **Shared storage, verified in two steps.** First, without Supabase: the SQL ran on Postgres
+  17, with roles named and configured as Supabase's are. It refused the public roles, refused
+  deletes, and let only one of two simultaneous saves through, as intended. The app then ran as
+  two servers sharing one database, through a local stand-in for Supabase's API backed by that
+  Postgres. A report sent to one server, with its photo, appeared on the other. Two officers on
+  different servers changed one report at the same moment, and both changes were kept. The
+  Supabase code is also tested against an in-memory fake of its API. Second, on a real Supabase
+  project: the migration created the table and a private bucket with the right limits, the first
+  dashboard visit filled the table with the 40 demo reports, and the dashboard, a report page
+  and a citizen page loaded from it. Submitting a report with a photo and officer changes have
+  not yet been run on the real project, only on the stand-in.
 - **Verified with an invalid key only:** the AI path. We could not call the live model during
   the build. Submissions and briefs were checked with an invalid key, which exercises the
   fallback, and with fake models in the tests. A successful live call has not been observed.
@@ -123,11 +143,10 @@ next. It is written for judges, officers and anyone deciding whether to trust th
 ## What we would do next
 
 1. Per-officer accounts with a real identity provider, so history shows a person.
-2. A real database with migrations, replacing the JSON file.
+2. Live updates, so an open dashboard shows new reports without a refresh.
 3. SMS or email notifications when a citizen's report changes status.
 4. Calibrate the priority weights and duplicate thresholds on real complaints, using officers'
    corrections as labels.
 5. Test with real officers and citizens, including screen-reader users, and fix what they find.
 6. A nonce-based Content-Security-Policy, and a tile provider with a contract.
-7. A spatial index for clustering, and a shared rate limiter (for example, Redis) for more
-   than one server.
+7. A spatial index for clustering, and a rate limiter shared by every server instance.

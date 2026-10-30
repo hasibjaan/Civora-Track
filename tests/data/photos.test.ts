@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { createPhotoStore, InvalidPhotoError, sniffImageMimeType } from "@/data/photos";
+import { createFilePhotoStore, InvalidPhotoError, sniffImageMimeType } from "@/data/photos";
 
 const JPEG_BYTES = [0xff, 0xd8, 0xff, 0xe0, 0x00, 0x10, 0x4a, 0x46, 0x49, 0x46];
 const PNG_BYTES = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -26,7 +26,7 @@ describe("sniffImageMimeType", () => {
   });
 });
 
-describe("createPhotoStore", () => {
+describe("createFilePhotoStore", () => {
   let dir: string;
 
   beforeEach(async () => {
@@ -38,7 +38,7 @@ describe("createPhotoStore", () => {
   });
 
   it("saves a valid JPEG and reads it back", async () => {
-    const store = createPhotoStore(dir);
+    const store = createFilePhotoStore(dir);
 
     const photo = await store.save("RPT-0000AAAA", dataUrl("image/jpeg", JPEG_BYTES));
     const bytes = await store.read("RPT-0000AAAA", photo.mimeType);
@@ -49,7 +49,7 @@ describe("createPhotoStore", () => {
   });
 
   it("rejects a file whose content does not match the type it claims", async () => {
-    const store = createPhotoStore(dir);
+    const store = createFilePhotoStore(dir);
 
     await expect(store.save("RPT-0000AAAA", dataUrl("image/jpeg", PNG_BYTES))).rejects.toThrow(
       InvalidPhotoError,
@@ -57,7 +57,7 @@ describe("createPhotoStore", () => {
   });
 
   it("rejects a data URL that is not a supported image type", async () => {
-    const store = createPhotoStore(dir);
+    const store = createFilePhotoStore(dir);
 
     await expect(
       store.save("RPT-0000AAAA", dataUrl("text/html", Buffer.from("<b>hi</b>"))),
@@ -65,7 +65,7 @@ describe("createPhotoStore", () => {
   });
 
   it("rejects a photo over the size limit", async () => {
-    const store = createPhotoStore(dir);
+    const store = createFilePhotoStore(dir);
     const tooBig = Buffer.alloc(2 * 1024 * 1024 + 1, 0xff);
     tooBig.set(JPEG_BYTES, 0);
 
@@ -75,7 +75,7 @@ describe("createPhotoStore", () => {
   });
 
   it("refuses any tracking ID that could escape the photo directory", async () => {
-    const store = createPhotoStore(dir);
+    const store = createFilePhotoStore(dir);
 
     await expect(store.save("../../etc/passwd", dataUrl("image/jpeg", JPEG_BYTES))).rejects.toThrow(
       "Invalid tracking ID",
@@ -84,7 +84,7 @@ describe("createPhotoStore", () => {
   });
 
   it("removes a photo, and does nothing if it is already gone", async () => {
-    const store = createPhotoStore(dir);
+    const store = createFilePhotoStore(dir);
     await store.save("RPT-0000AAAA", dataUrl("image/jpeg", JPEG_BYTES));
 
     await store.remove("RPT-0000AAAA");

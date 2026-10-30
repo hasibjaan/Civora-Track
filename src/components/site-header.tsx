@@ -1,6 +1,8 @@
 import { MapPinned } from "lucide-react";
 import Link from "next/link";
 
+import { SITE_NAME } from "@/components/brand";
+
 const NAV_LINK =
   "inline-flex min-h-11 items-center rounded-md px-2 text-sm font-medium text-white underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-white";
 
@@ -14,7 +16,7 @@ export function SiteHeader() {
           className="inline-flex min-h-11 items-center gap-2 rounded-md text-lg font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           <MapPinned className="size-6" aria-hidden />
-          CivicTrack
+          {SITE_NAME}
         </Link>
         <nav aria-label="Main">
           <ul className="flex flex-wrap items-center gap-x-2">

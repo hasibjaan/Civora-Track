@@ -4,7 +4,7 @@ Standing instructions for Claude Code in this repo. Read this first.
 
 ## Project
 
-CivicTrack is a hackathon project that solves the problem described in
+Civora ("Your City. Your Voice. Your Change") is a hackathon project that solves the problem described in
 [PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md). The build plan and phase
 checkpoints are in [PLAN.md](PLAN.md).
 
@@ -18,6 +18,8 @@ five at the highest level. A change that breaks one of them is not finished.
 - **Tailwind CSS v4** for styling (`src/app/globals.css`)
 - **zod 4** for every boundary: forms, API bodies, stored data, AI replies
 - **@anthropic-ai/sdk** for the classifier, behind `src/ai/llm.ts`
+- **@supabase/supabase-js** for shared storage (Postgres table, Storage bucket), server only,
+  behind `src/data/`. Without Supabase settings the app uses local files.
 - Icons: `lucide-react`. Server-only guard: `server-only`
 - Package manager: **npm** (lockfile is `package-lock.json`)
 
@@ -56,14 +58,20 @@ src/
                        rules.ts is the offline fallback.
   application/         Use cases (submit-report.ts). Depends on interfaces, not
                        on storage, so it can be tested with fakes.
-  data/                Storage: JSON repository, photo files, seed data
+  data/                Storage. index.ts picks Supabase (supabase-*.ts) or files
+                       (repository.ts, photos.ts) from storage-config.ts. Seed data.
   maps/                Satellite imagery from Google Earth Engine (server-only), with a cache
                        and a street-map fallback
   lib/                 Request helpers: body size limit, rate limit, image
                        resizing (browser), validation messages
-tests/                 Vitest, mirroring src/. support/ holds fixtures.
-data/                  Runtime data (git-ignored): reports.json, photos/
+supabase/migrations/   SQL for the reports table and photo bucket. Mirrored by
+                       src/data/supabase-schema.ts.
+tests/                 Vitest, mirroring src/. support/ holds fixtures and a fake Supabase.
+data/                  Runtime data in file mode (git-ignored): reports.json, photos/
 ```
+
+Both stores pass the same contract (`tests/data/report-repository-contract.ts`). A change
+to how reports are stored must keep both passing.
 
 Dependency direction: `app` -> `application` -> `domain`. `ai` and `data`
 implement interfaces the application layer declares. `domain` imports nothing
@@ -73,6 +81,8 @@ from the rest of the app.
 
 - One light theme. Use the theme tokens (`canvas`, `brand-50` to `brand-900`) and the shared
   button styles in `src/components/ui/button-styles.ts`. Do not add `dark:` classes.
+- The site's name and tagline live once, in `src/components/brand.ts` (`SITE_NAME`,
+  `SITE_TAGLINE`). Use them in UI and metadata instead of typing the name.
 - Server Components by default. `"use client"` only for state, effects, or
   browser APIs.
 - Secrets live in `.env.local`. Only `NEXT_PUBLIC_` variables reach the browser.
@@ -92,8 +102,16 @@ from the rest of the app.
   never let model output set priority or change data. The model only suggests a
   category and a summary, both validated by zod with a rule-based fallback.
 - Photos are checked by file signature (magic bytes), not by the declared type.
-  They are stored as files named only by validated tracking IDs. Never build a
-  file path from user input without `TRACKING_ID_PATTERN` first.
+  They are stored under names built only from validated tracking IDs (`photoFileName`).
+  Never build a file path or object name from user input without `TRACKING_ID_PATTERN` first.
+- Only the server talks to Supabase, with `SUPABASE_SECRET_KEY`, which bypasses row level
+  security. Never expose it or add a `NEXT_PUBLIC_` Supabase key, and never import
+  `src/data/supabase-*` from client code. The table stays closed to `anon` and
+  `authenticated` (RLS on, no policies, no grants), the server role has no delete, and the
+  photo bucket stays private. Change the database only with a new file in
+  `supabase/migrations/`, and update `src/data/supabase-schema.ts` to match.
+- Supabase errors are thrown as `SupabaseRequestError`, which keeps only the operation and the
+  error code. Never log a database error's message or details: Postgres puts row data there.
 - Request bodies are size-capped while streaming. Submissions are rate-limited.
   Error responses to clients are generic; details go to server logs only.
 - Log failure types, never report text, photos, or keys.
@@ -103,8 +121,9 @@ from the rest of the app.
   cross-site requests that could reuse cached Basic credentials. Keep officer
   mutations as server actions, or add an Origin check to any route handler.
 - Every officer change goes through `reportRepository.modify`. The change function
-  runs on the stored copy inside the write queue, so changes cannot overwrite each
-  other, and a refused change is never written. Never write a whole report from a
+  runs on the stored copy, inside the write queue for files, or against a version check
+  for Supabase that re-applies the change if another save won. So changes cannot overwrite
+  each other, and a refused change is never written. Never write a whole report from a
   stale read.
 - Workflow rules live in `src/domain/status.ts` and `src/domain/officer-actions.ts`.
   Add new officer actions there, with tests, before wiring them to a form.
@@ -123,9 +142,11 @@ from the rest of the app.
 
 ## Efficiency rules
 
-- Read data once per request. The repository caches parsed reports and reloads
-  only when the file's size or modified time changes.
-- Writes are serialized and atomic (temp file, then rename).
+- Read data once per request. The file store caches parsed reports and reloads
+  only when the file's size or modified time changes. The Supabase store reads on each
+  call, in pages of 1,000 rows, and every Supabase request times out after 5 seconds.
+- File writes are serialized and atomic (temp file, then rename). Supabase writes are
+  single-row updates guarded by the row's version.
 - Analysis runs once per submission and is stored on the report. Nothing is
   recomputed on page load.
 - AI calls have a timeout, one retry, and a rules fallback. A slow model must not
@@ -162,3 +183,7 @@ from the rest of the app.
 - [x] Phase 6 (citizen timeline, next step, action briefs for hotspots and reports)
 - [x] Phase 7 (loading, error and not-found states, skip link, empty states, cleanup)
 - [x] Phase 8 (quality gate, independent review and fixes, README, demo script, limitations, cold-start rehearsals)
+- [x] Shared storage in Supabase (reports table, private photo bucket) and the Vercel deploy
+      guide (`docs/DEPLOY.md`). Reads and seeding verified on the real project; submissions,
+      photo uploads and officer changes so far only against a local stand-in.
+- [x] Renamed to Civora, tagline "Your City. Your Voice. Your Change" (`src/components/brand.ts`)

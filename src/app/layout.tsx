@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+import { SITE_NAME, SITE_TAGLINE } from "@/components/brand";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
@@ -16,8 +17,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: process.env.NEXT_PUBLIC_APP_NAME ?? "CivicTrack",
-  description: "CivicTrack: report civic problems and follow their progress.",
+  // Pages set their own title, which becomes "Report a problem | Civora". The home page has none.
+  title: { default: `${SITE_NAME} | ${SITE_TAGLINE}`, template: `%s | ${SITE_NAME}` },
+  description: `${SITE_TAGLINE}. Report civic problems in your city and follow them until they are fixed.`,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

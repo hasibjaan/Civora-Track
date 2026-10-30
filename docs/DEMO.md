@@ -4,6 +4,13 @@ Follows the judging journey: submit, understand, reveal, act, and track. Times a
 
 ## Before you start (once, about 2 minutes)
 
+**Deployed (recommended).** Follow [DEPLOY.md](DEPLOY.md). Shortly before the demo, run
+`truncate table public.reports;` in the Supabase SQL editor, then open the officer dashboard
+once, so the demo reports are recent. Use a real phone for the citizen steps and a laptop for
+the officer steps: they share the same data.
+
+**On one computer.**
+
 ```bash
 npm install
 cp .env.example .env.local
@@ -31,8 +38,9 @@ happened. This app turns scattered reports into a ranked, explained, trackable q
    **Report a problem** on the citizen card.
 2. Description: `Drain outside 14 Lakeview Road is blocked again. Water spills across the road.`
 3. Category: **Blocked or open drain**.
-4. Location: type coordinates `12.97502` and `77.60102` (device location needs HTTPS or
-   localhost, and a browser that grants it), and landmark `Opposite 14 Lakeview Road`.
+4. Location: type coordinates `12.97502` and `77.60102`, and landmark
+   `Opposite 14 Lakeview Road`. Type them even on a phone: the duplicate step needs this exact
+   spot. Device location works on the deployed site or localhost, in a browser that grants it.
 5. Optional: attach any JPEG or PNG photo. It is resized before upload.
 6. Tap **Submit report**.
 
@@ -43,8 +51,9 @@ by its file signature, not by its name.
 
 ## 1:30 Show how the AI processes it (desktop, `/admin`)
 
-1. Go back to the landing page and click **Sign in as an officer**, or use **Officers** in the
-   header. Sign in, find your new report in the queue, and open it.
+1. On the laptop, open the landing page and click **Sign in as an officer**, or use
+   **Officers** in the header. Sign in, find the report the phone just sent in the queue, and
+   open it. Say: the phone and the laptop share one database, so the report is already here.
 2. In **Analysis**, point out:
    - the summary, which is one sentence written from the report;
    - **Why this priority**, with each factor and its points;
@@ -91,10 +100,10 @@ Open the new report's detail page and do these in order:
    **Expect:** every change, with the officer's name and the time. Say: the history is the
    audit trail, and the citizen sees the same progress in plainer words.
 
-## 4:30 Citizen sees progress (phone size, signed out)
+## 4:30 Citizen sees progress (phone, signed out)
 
-1. Open http://localhost:3000/track/ followed by the tracking ID from step 0:30. You do
-   not need to sign in.
+1. On the phone, open `/track/` followed by the tracking ID from step 0:30, or enter the ID
+   on the landing page. You do not need to sign in.
 2. Point out: current status, **What happens next**, and the timeline.
 
 **Expect:** "Assigned to a team" or later, the team name, and the timeline oldest first.
@@ -112,12 +121,15 @@ the full list, including where the AI can be wrong.
 ## If something goes wrong
 
 - **Submission fails with "Could not reach the server".** Check that `npm run start` is
-  still running.
+  still running, or that the deployed site loads.
+- **"We could not save your report".** On the deployed site, check the Vercel logs and the
+  troubleshooting table in [DEPLOY.md](DEPLOY.md). A free Supabase project pauses after a week
+  without use, and must be restored from the Supabase dashboard.
 - **The officer area says it is locked.** `ADMIN_PASSWORD` is missing or shorter than 12
-  characters. Set it in `.env.local` and restart.
-- **No duplicates appear for the new report.** The seed is made when `data/` is first
-  created. Run `rm -rf data` and restart, so the seed is recent. The duplicate rule only
-  looks back 72 hours.
+  characters. Set it in `.env.local` or in Vercel, and restart or redeploy.
+- **No duplicates appear for the new report.** The seed is dated from when the store was
+  filled, and the duplicate rule only looks back 72 hours. Reset it: `truncate table
+public.reports;` in Supabase, or `rm -rf data` and a restart on one computer.
 - **The map is blank.** It loads OpenStreetMap tiles, which need internet access. The lists
   show the same information.
 - **Briefs say "Written from the recorded facts without AI".** That is expected with no key.

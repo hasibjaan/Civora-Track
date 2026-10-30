@@ -30,6 +30,10 @@
 # credentials such as the Earth Engine service-account key
 /secrets/
 
+# Supabase CLI working files (the migrations themselves are committed)
+/supabase/.temp/
+/supabase/.branches/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
