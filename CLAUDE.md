@@ -81,6 +81,8 @@ from the rest of the app.
 
 - One light theme. Use the theme tokens (`canvas`, `brand-50` to `brand-900`) and the shared
   button styles in `src/components/ui/button-styles.ts`. Do not add `dark:` classes.
+  Accents `marigold` (shapes only) and `terracotta` (text-safe). Headings use Fraunces
+  automatically (`font-display`); body is Figtree; `font-mono` is IBM Plex Mono for IDs and labels.
 - The site's name and tagline live once, in `src/components/brand.ts` (`SITE_NAME`,
   `SITE_TAGLINE`). Use them in UI and metadata instead of typing the name.
 - Server Components by default. `"use client"` only for state, effects, or

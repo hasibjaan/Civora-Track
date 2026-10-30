@@ -153,9 +153,15 @@ changes made on another device.
 ## Design
 
 One light theme: a warm off-white page, white cards, and a deep civic green for the header,
-buttons and links. The green is kept apart from the priority colours (red, orange and amber), so
-urgency always stands out. The theme is defined once, in `src/app/globals.css`, and buttons share
-the styles in `src/components/ui/button-styles.ts`.
+buttons and links, with marigold and terracotta as warm accents. The green is kept apart from the
+priority colours (red, orange and amber), so urgency always stands out. The theme is defined once,
+in `src/app/globals.css`, and buttons share the styles in `src/components/ui/button-styles.ts`.
+
+Three typefaces, each with one job: Fraunces, an expressive serif, for every heading; Figtree for
+reading; and IBM Plex Mono for tracking IDs and small labels. All are self-hosted at build time,
+so no font request leaves the site. The landing page illustrations are inline SVG
+(`src/components/landing/illustrations.tsx`): they need no image requests and are hidden from
+screen readers, because the text beside them says the same thing.
 
 ## Satellite imagery (Google Earth Engine)
 

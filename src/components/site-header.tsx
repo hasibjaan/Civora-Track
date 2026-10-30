@@ -13,7 +13,7 @@ export function SiteHeader() {
       <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-2">
         <Link
           href="/"
-          className="inline-flex min-h-11 items-center gap-2 rounded-md text-lg font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
+          className="inline-flex min-h-11 items-center gap-2 rounded-md font-display text-2xl font-semibold italic focus:outline-none focus-visible:ring-2 focus-visible:ring-white"
         >
           <MapPinned className="size-6" aria-hidden />
           {SITE_NAME}
