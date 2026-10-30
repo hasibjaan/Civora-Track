@@ -11,8 +11,8 @@ const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  // Map tiles come from OpenStreetMap, the only third-party origin the app loads.
-  "img-src 'self' data: blob: https://tile.openstreetmap.org",
+  // Map tiles: OpenStreetMap street maps, and Google Earth Engine satellite imagery.
+  "img-src 'self' data: blob: https://tile.openstreetmap.org https://earthengine.googleapis.com",
   "font-src 'self'",
   "connect-src 'self'",
   "object-src 'none'",
@@ -34,6 +34,9 @@ const nextConfig: NextConfig = {
   cacheComponents: true,
   partialPrefetching: true,
   poweredByHeader: false,
+  // The Earth Engine client is a large CommonJS library. Load it from node_modules at run time
+  // instead of bundling it.
+  serverExternalPackages: ["@google/earthengine"],
   turbopack: {
     // Pin the project root. Otherwise Turbopack may pick a parent folder that also has a
     // lockfile, and then fail to resolve the "@/" import alias.

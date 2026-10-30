@@ -10,6 +10,7 @@ import { STATUS_LABELS } from "@/domain/status";
 import { TEAM_LABELS } from "@/domain/teams";
 import type { Category, PriorityLevel, Status, Team } from "@/domain/types";
 import { inputClassName } from "@/components/report-form/form-field";
+import { primaryButton } from "@/components/ui/button-styles";
 
 /** A server action that receives a form and returns what to show. */
 export type OfficerAction = (state: ActionState, formData: FormData) => Promise<ActionState>;
@@ -24,10 +25,7 @@ interface FormProps {
   action: OfficerAction;
 }
 
-const SUBMIT_CLASS =
-  "min-h-12 rounded-lg bg-zinc-900 px-4 py-3 text-base font-medium text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/40 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900";
-
-const SELECT_LABEL_CLASS = "text-sm font-medium text-zinc-800 dark:text-zinc-200";
+const SELECT_LABEL_CLASS = "text-sm font-medium text-zinc-800";
 
 /** Announces the result of an action. Always rendered so screen readers catch the change. */
 function ActionFeedback({ state }: { state: ActionState }) {
@@ -39,8 +37,8 @@ function ActionFeedback({ state }: { state: ActionState }) {
       role="status"
       className={`rounded-lg px-3 py-2 text-sm ${
         isError
-          ? "border border-red-300 bg-red-50 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
-          : "border border-green-300 bg-green-50 text-green-900 dark:border-green-900 dark:bg-green-950 dark:text-green-100"
+          ? "border border-red-300 bg-red-50 text-red-900"
+          : "border border-green-300 bg-green-50 text-green-900"
       }`}
     >
       {isError ? `Not saved. ${state.message}` : state.message}
@@ -91,7 +89,7 @@ export function AssignForm({ reportId, action, defaultTeam }: FormProps & { defa
         defaultValue={defaultTeam}
         options={TEAM_IDS.map((team) => ({ value: team, label: TEAM_LABELS[team] }))}
       />
-      <button type="submit" disabled={isPending} className={SUBMIT_CLASS} aria-busy={isPending}>
+      <button type="submit" disabled={isPending} className={primaryButton} aria-busy={isPending}>
         {isPending ? "Saving..." : "Assign team"}
       </button>
       <ActionFeedback state={state} />
@@ -124,7 +122,7 @@ export function StatusForm({
         </label>
         <textarea id={noteId} name="note" rows={2} maxLength={300} className={inputClassName} />
       </div>
-      <button type="submit" disabled={isPending} className={SUBMIT_CLASS} aria-busy={isPending}>
+      <button type="submit" disabled={isPending} className={primaryButton} aria-busy={isPending}>
         {isPending ? "Saving..." : "Update status"}
       </button>
       <ActionFeedback state={state} />
@@ -149,7 +147,7 @@ export function CategoryForm({ reportId, action, current }: FormProps & { curren
           label: CATEGORY_LABELS[category],
         }))}
       />
-      <button type="submit" disabled={isPending} className={SUBMIT_CLASS} aria-busy={isPending}>
+      <button type="submit" disabled={isPending} className={primaryButton} aria-busy={isPending}>
         {isPending ? "Saving..." : "Change category"}
       </button>
       <ActionFeedback state={state} />
@@ -189,7 +187,7 @@ export function PriorityForm({
           className={inputClassName}
         />
       </div>
-      <button type="submit" disabled={isPending} className={SUBMIT_CLASS} aria-busy={isPending}>
+      <button type="submit" disabled={isPending} className={primaryButton} aria-busy={isPending}>
         {isPending ? "Saving..." : "Set priority"}
       </button>
       <ActionFeedback state={state} />
@@ -216,10 +214,10 @@ export function MergeForm({
         defaultValue={suggestedId ?? targets[0]?.value ?? ""}
         options={targets}
       />
-      <p className="text-sm text-zinc-700 dark:text-zinc-300">
+      <p className="text-sm text-zinc-700">
         This report leaves the queue and is counted on the report you choose. Its history is kept.
       </p>
-      <button type="submit" disabled={isPending} className={SUBMIT_CLASS} aria-busy={isPending}>
+      <button type="submit" disabled={isPending} className={primaryButton} aria-busy={isPending}>
         {isPending ? "Merging..." : "Merge into selected report"}
       </button>
       <ActionFeedback state={state} />

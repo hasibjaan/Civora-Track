@@ -32,17 +32,17 @@ export function ImageField({ file, onChange, error }: ImageFieldProps) {
         aria-invalid={Boolean(error)}
         aria-describedby={ERROR_ID}
         onChange={(event) => onChange(event.target.files?.[0] ?? null)}
-        className="block w-full text-base text-zinc-700 file:mr-3 file:min-h-12 file:cursor-pointer file:rounded-lg file:border-0 file:bg-zinc-900 file:px-4 file:py-3 file:text-white dark:text-zinc-300 dark:file:bg-zinc-100 dark:file:text-zinc-900"
+        className="block w-full text-base text-zinc-700 file:mr-3 file:min-h-12 file:cursor-pointer file:rounded-lg file:border-0 file:bg-brand-700 file:px-4 file:py-3 file:text-white"
       />
       {file && (
-        <div className="flex items-center justify-between gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+        <div className="flex items-center justify-between gap-3 text-sm text-zinc-600">
           <span className="truncate">
             {file.name} ({formatSize(file.size)}). It will be resized before upload.
           </span>
           <button
             type="button"
             onClick={clear}
-            className="shrink-0 min-h-10 rounded-md px-3 font-medium text-zinc-900 underline dark:text-zinc-100"
+            className="shrink-0 min-h-10 rounded-md px-3 font-medium text-brand-800 underline"
           >
             Remove
           </button>

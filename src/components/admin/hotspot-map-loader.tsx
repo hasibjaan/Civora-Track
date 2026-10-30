@@ -13,7 +13,7 @@ const HotspotMap = dynamic<HotspotMapProps>(
     loading: () => (
       <div
         role="status"
-        className="flex h-80 w-full items-center justify-center rounded-xl border border-zinc-200 text-sm text-zinc-700 dark:border-zinc-800 dark:text-zinc-300"
+        className="flex h-80 w-full items-center justify-center rounded-xl border border-zinc-200 text-sm text-zinc-700"
       >
         Loading map...
       </div>

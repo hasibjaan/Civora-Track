@@ -35,11 +35,11 @@ export default async function TrackPage({ params }: PageProps<"/track/[id]">) {
   return (
     <main id="main" className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-4 py-8">
       <header className="flex flex-col gap-2">
-        <p className="font-mono text-sm text-zinc-700 dark:text-zinc-300">{view.id}</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+        <p className="font-mono text-sm text-zinc-700">{view.id}</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
           {view.categoryLabel}
         </h1>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">
+        <p className="text-sm text-zinc-700">
           Last updated{" "}
           <time dateTime={view.lastUpdated}>
             {DATE_FORMAT.format(new Date(view.lastUpdated))} UTC
@@ -49,30 +49,30 @@ export default async function TrackPage({ params }: PageProps<"/track/[id]">) {
 
       <section
         aria-labelledby="status-heading"
-        className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
+        className="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-5"
       >
-        <h2 id="status-heading" className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+        <h2 id="status-heading" className="text-sm font-medium text-zinc-700">
           Current status
         </h2>
-        <p className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">{view.statusLabel}</p>
-        <p className="text-base text-zinc-800 dark:text-zinc-200">
+        <p className="text-xl font-semibold text-zinc-950">{view.statusLabel}</p>
+        <p className="text-base text-zinc-800">
           <span className="font-medium">What happens next: </span>
           {view.nextStep}
         </p>
       </section>
 
       <section aria-labelledby="progress-heading" className="flex flex-col gap-3">
-        <h2 id="progress-heading" className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+        <h2 id="progress-heading" className="text-xl font-semibold text-zinc-950">
           Progress
         </h2>
         <ol className="flex flex-col gap-4">
           {view.timeline.map((item, index) => (
             <li
               key={`${item.at}-${index}`}
-              className="flex flex-col gap-1 border-l-2 border-zinc-300 pl-4 dark:border-zinc-700"
+              className="flex flex-col gap-1 border-l-2 border-zinc-300 pl-4"
             >
-              <p className="text-base text-zinc-950 dark:text-zinc-50">{item.text}</p>
-              <time dateTime={item.at} className="text-sm text-zinc-700 dark:text-zinc-300">
+              <p className="text-base text-zinc-950">{item.text}</p>
+              <time dateTime={item.at} className="text-sm text-zinc-700">
                 {DATE_FORMAT.format(new Date(item.at))} UTC
               </time>
             </li>
@@ -81,13 +81,11 @@ export default async function TrackPage({ params }: PageProps<"/track/[id]">) {
       </section>
 
       <section aria-labelledby="details-heading" className="flex flex-col gap-3">
-        <h2 id="details-heading" className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+        <h2 id="details-heading" className="text-xl font-semibold text-zinc-950">
           Your report
         </h2>
-        <p className="text-base text-zinc-800 dark:text-zinc-200">{view.description}</p>
-        {view.landmark && (
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">Near: {view.landmark}</p>
-        )}
+        <p className="text-base text-zinc-800">{view.description}</p>
+        {view.landmark && <p className="text-sm text-zinc-700">Near: {view.landmark}</p>}
         {view.hasPhoto && (
           <Image
             src={`/api/reports/${view.id}/photo`}
@@ -95,7 +93,7 @@ export default async function TrackPage({ params }: PageProps<"/track/[id]">) {
             width={1280}
             height={960}
             unoptimized
-            className="h-auto w-full rounded-lg border border-zinc-200 dark:border-zinc-800"
+            className="h-auto w-full rounded-lg border border-zinc-200"
           />
         )}
       </section>

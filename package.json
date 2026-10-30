@@ -1,5 +1,5 @@
 {
-  "name": "alvas-hackathon",
+  "name": "civictrack",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",
+    "@google/earthengine": "^1.7.50",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.64.0",
     "next": "16.4.3",
@@ -37,5 +38,8 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^5.0.5"
+  },
+  "overrides": {
+    "uuid": "^11.1.1"
   }
 }

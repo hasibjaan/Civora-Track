@@ -1,4 +1,4 @@
-# PLAN.md: From Complaints to Action (8-hour build)
+# PLAN.md: CivicTrack (8-hour build)
 
 Build plan for the PromptWars x ASTRA hackathon. Source: [PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md).
 

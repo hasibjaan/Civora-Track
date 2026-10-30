@@ -4,7 +4,7 @@ Standing instructions for Claude Code in this repo. Read this first.
 
 ## Project
 
-Hackathon project: a website that solves the problem described in
+CivicTrack is a hackathon project that solves the problem described in
 [PROBLEM_STATEMENT.md](PROBLEM_STATEMENT.md). The build plan and phase
 checkpoints are in [PLAN.md](PLAN.md).
 
@@ -57,6 +57,8 @@ src/
   application/         Use cases (submit-report.ts). Depends on interfaces, not
                        on storage, so it can be tested with fakes.
   data/                Storage: JSON repository, photo files, seed data
+  maps/                Satellite imagery from Google Earth Engine (server-only), with a cache
+                       and a street-map fallback
   lib/                 Request helpers: body size limit, rate limit, image
                        resizing (browser), validation messages
 tests/                 Vitest, mirroring src/. support/ holds fixtures.
@@ -69,6 +71,8 @@ from the rest of the app.
 
 ## Conventions
 
+- One light theme. Use the theme tokens (`canvas`, `brand-50` to `brand-900`) and the shared
+  button styles in `src/components/ui/button-styles.ts`. Do not add `dark:` classes.
 - Server Components by default. `"use client"` only for state, effects, or
   browser APIs.
 - Secrets live in `.env.local`. Only `NEXT_PUBLIC_` variables reach the browser.

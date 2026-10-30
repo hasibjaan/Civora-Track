@@ -3,6 +3,8 @@
 import { LoaderCircle, LocateFixed } from "lucide-react";
 import { useState } from "react";
 
+import { secondaryButton } from "@/components/ui/button-styles";
+
 import { FieldError, FieldLabel, inputClassName } from "./form-field";
 
 export interface LocationValue {
@@ -52,8 +54,8 @@ export function LocationField({ value, onChange, errors }: LocationFieldProps) {
 
   return (
     <fieldset className="flex flex-col gap-4">
-      <legend className="mb-2 text-base font-medium text-zinc-900 dark:text-zinc-100">
-        Where is it? <span className="text-red-700 dark:text-red-400">*</span>
+      <legend className="mb-2 text-base font-medium text-zinc-900">
+        Where is it? <span className="text-red-700">*</span>
       </legend>
 
       <button
@@ -61,7 +63,7 @@ export function LocationField({ value, onChange, errors }: LocationFieldProps) {
         onClick={useCurrentLocation}
         disabled={isLocating}
         aria-describedby={STATUS_ID}
-        className="flex min-h-12 w-full items-center justify-center gap-2 rounded-lg border border-zinc-900 px-4 py-3 text-base font-medium text-zinc-900 hover:bg-zinc-900 hover:text-white focus:outline-none focus:ring-2 focus:ring-zinc-900/40 disabled:opacity-60 dark:border-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-100 dark:hover:text-zinc-900"
+        className={`${secondaryButton} w-full`}
       >
         {isLocating ? (
           <LoaderCircle className="size-5 animate-spin" aria-hidden />
@@ -71,7 +73,7 @@ export function LocationField({ value, onChange, errors }: LocationFieldProps) {
         {isLocating ? "Finding your location..." : "Use my current location"}
       </button>
 
-      <p id={STATUS_ID} role="status" className="text-sm text-zinc-700 dark:text-zinc-300">
+      <p id={STATUS_ID} role="status" className="text-sm text-zinc-700">
         {geoMessage ??
           (hasCoordinates
             ? `Pinned at ${value.lat?.toFixed(5)}, ${value.lng?.toFixed(5)}.`

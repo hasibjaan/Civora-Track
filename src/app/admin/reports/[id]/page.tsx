@@ -71,23 +71,20 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
 
   return (
     <main id="main" className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-8 px-4 py-8">
-      <Link
-        href="/admin"
-        className="text-sm font-medium text-zinc-900 underline dark:text-zinc-100"
-      >
+      <Link href="/admin" className="text-sm font-medium text-brand-800 underline">
         Back to the dashboard
       </Link>
 
       <header className="flex flex-col gap-3">
-        <p className="font-mono text-sm text-zinc-700 dark:text-zinc-300">{report.id}</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+        <p className="font-mono text-sm text-zinc-700">{report.id}</p>
+        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950">
           {CATEGORY_LABELS[report.category]}
         </h1>
-        <div className="flex flex-wrap items-center gap-3 text-base text-zinc-800 dark:text-zinc-200">
+        <div className="flex flex-wrap items-center gap-3 text-base text-zinc-800">
           <span>Status: {STATUS_LABELS[report.status]}</span>
           <PriorityBadge level={priority.level} />
           {report.priorityOverride && (
-            <span className="text-sm text-zinc-700 dark:text-zinc-300">
+            <span className="text-sm text-zinc-700">
               Set by an officer: {PRIORITY_LABELS[report.priorityOverride.level]}
             </span>
           )}
@@ -95,11 +92,11 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
       </header>
 
       <section aria-labelledby="report-heading" className="flex flex-col gap-3">
-        <h2 id="report-heading" className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+        <h2 id="report-heading" className="text-xl font-semibold text-zinc-950">
           Report
         </h2>
-        <p className="text-base text-zinc-800 dark:text-zinc-200">{report.description}</p>
-        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm text-zinc-800 dark:text-zinc-200">
+        <p className="text-base text-zinc-800">{report.description}</p>
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm text-zinc-800">
           <dt className="font-medium">Nearest landmark</dt>
           <dd>{report.location.address ?? "Not given"}</dd>
           <dt className="font-medium">Coordinates</dt>
@@ -116,33 +113,30 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
             width={1280}
             height={960}
             unoptimized
-            className="h-auto w-full max-w-lg rounded-lg border border-zinc-200 dark:border-zinc-800"
+            className="h-auto w-full max-w-lg rounded-lg border border-zinc-200"
           />
         )}
       </section>
 
       {report.analysis && (
         <section aria-labelledby="analysis-heading" className="flex flex-col gap-3">
-          <h2
-            id="analysis-heading"
-            className="text-xl font-semibold text-zinc-950 dark:text-zinc-50"
-          >
+          <h2 id="analysis-heading" className="text-xl font-semibold text-zinc-950">
             Analysis
           </h2>
-          <p className="text-base text-zinc-800 dark:text-zinc-200">
+          <p className="text-base text-zinc-800">
             <span className="font-medium">Summary: </span>
             {report.analysis.summary}
           </p>
           {report.analysis.suggestedCategory !== report.category && (
-            <p className="text-sm text-zinc-800 dark:text-zinc-200">
+            <p className="text-sm text-zinc-800">
               The analysis suggests {CATEGORY_LABELS[report.analysis.suggestedCategory]} for this
               report.
             </p>
           )}
-          <h3 className="pt-2 text-base font-medium text-zinc-950 dark:text-zinc-50">
+          <h3 className="pt-2 text-base font-medium text-zinc-950">
             Why this priority: score {report.analysis.priority.score} of 100
           </h3>
-          <ul className="flex flex-col gap-2 text-sm text-zinc-800 dark:text-zinc-200">
+          <ul className="flex flex-col gap-2 text-sm text-zinc-800">
             {report.analysis.priority.factors.map((factor) => (
               <li key={factor.factor}>
                 <span className="font-medium">
@@ -153,7 +147,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
             ))}
           </ul>
           {report.analysis.duplicateOf.length > 0 && (
-            <p className="text-sm text-zinc-800 dark:text-zinc-200">
+            <p className="text-sm text-zinc-800">
               Possibly the same problem as{" "}
               {report.analysis.duplicateOf.map((duplicateId, index) => (
                 <span key={duplicateId}>
@@ -169,7 +163,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
               .
             </p>
           )}
-          <p className="text-xs text-zinc-700 dark:text-zinc-300">
+          <p className="text-xs text-zinc-700">
             Summary and category: {report.analysis.method === "llm" ? "AI model" : "rules"}, from{" "}
             {new Date(report.analysis.analyzedAt).toISOString().slice(0, 10)}. The priority is
             recalculated from current reports each time this page loads.
@@ -178,29 +172,26 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
       )}
 
       <section aria-labelledby="brief-heading" className="flex flex-col gap-3">
-        <h2 id="brief-heading" className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+        <h2 id="brief-heading" className="text-xl font-semibold text-zinc-950">
           Action brief
         </h2>
         <BriefView brief={brief} />
       </section>
 
       <section aria-labelledby="actions-heading" className="flex flex-col gap-4">
-        <h2 id="actions-heading" className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+        <h2 id="actions-heading" className="text-xl font-semibold text-zinc-950">
           Actions
         </h2>
 
         {!open ? (
-          <p className="text-base text-zinc-800 dark:text-zinc-200">
+          <p className="text-base text-zinc-800">
             This report is closed or merged, so it cannot be changed.
           </p>
         ) : (
           <div className="grid gap-8 md:grid-cols-2">
             {canChangeTeam(report) && (
               <section aria-labelledby="team-heading" className="flex flex-col gap-3">
-                <h3
-                  id="team-heading"
-                  className="text-base font-semibold text-zinc-950 dark:text-zinc-50"
-                >
+                <h3 id="team-heading" className="text-base font-semibold text-zinc-950">
                   Assign a team
                 </h3>
                 <AssignForm
@@ -213,10 +204,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
 
             {statusOptions.length > 0 && (
               <section aria-labelledby="status-heading" className="flex flex-col gap-3">
-                <h3
-                  id="status-heading"
-                  className="text-base font-semibold text-zinc-950 dark:text-zinc-50"
-                >
+                <h3 id="status-heading" className="text-base font-semibold text-zinc-950">
                   Change status
                 </h3>
                 <StatusForm
@@ -228,10 +216,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
             )}
 
             <section aria-labelledby="category-heading" className="flex flex-col gap-3">
-              <h3
-                id="category-heading"
-                className="text-base font-semibold text-zinc-950 dark:text-zinc-50"
-              >
+              <h3 id="category-heading" className="text-base font-semibold text-zinc-950">
                 Correct the category
               </h3>
               <CategoryForm
@@ -242,10 +227,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
             </section>
 
             <section aria-labelledby="priority-heading" className="flex flex-col gap-3">
-              <h3
-                id="priority-heading"
-                className="text-base font-semibold text-zinc-950 dark:text-zinc-50"
-              >
+              <h3 id="priority-heading" className="text-base font-semibold text-zinc-950">
                 Set the priority
               </h3>
               <PriorityForm
@@ -260,10 +242,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
                 aria-labelledby="merge-heading"
                 className="flex flex-col gap-3 md:col-span-2"
               >
-                <h3
-                  id="merge-heading"
-                  className="text-base font-semibold text-zinc-950 dark:text-zinc-50"
-                >
+                <h3 id="merge-heading" className="text-base font-semibold text-zinc-950">
                   Merge this duplicate
                 </h3>
                 <MergeForm
@@ -280,7 +259,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
 
       {mergedHere.length > 0 && (
         <section aria-labelledby="merged-heading" className="flex flex-col gap-3">
-          <h2 id="merged-heading" className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+          <h2 id="merged-heading" className="text-xl font-semibold text-zinc-950">
             Merged into this report
           </h2>
           <ul className="flex flex-col gap-1 text-base">
@@ -292,9 +271,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
                 >
                   {item.id}
                 </Link>{" "}
-                <span className="text-zinc-800 dark:text-zinc-200">
-                  {CATEGORY_LABELS[item.category]}
-                </span>
+                <span className="text-zinc-800">{CATEGORY_LABELS[item.category]}</span>
               </li>
             ))}
           </ul>
@@ -302,7 +279,7 @@ export default async function ReportDetailPage({ params }: PageProps<"/admin/rep
       )}
 
       <section aria-labelledby="history-heading" className="flex flex-col gap-3">
-        <h2 id="history-heading" className="text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+        <h2 id="history-heading" className="text-xl font-semibold text-zinc-950">
           History
         </h2>
         <HistoryList entries={report.history} />

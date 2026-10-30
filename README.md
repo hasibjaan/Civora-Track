@@ -1,4 +1,4 @@
-# From Complaints to Action
+# CivicTrack
 
 An AI-assisted platform that turns scattered citizen reports into a prioritized, explained and
 trackable work queue for local officers. Built with Next.js 16 for the PromptWars x ASTRA hackathon.
@@ -30,8 +30,10 @@ npm run build
 npm run start                  # http://localhost:3000
 ```
 
-- Citizens: http://localhost:3000 → **Report a problem**, and track at `/track/RPT-…`.
-- Officers: http://localhost:3000/admin, sign in as `officer` with your `ADMIN_PASSWORD`.
+- Start at http://localhost:3000. The landing page has one button for each kind of visitor.
+- Citizens: **Report a problem**, or enter a tracking ID to follow a report. No account is needed.
+- Officers: **Sign in as an officer**. The browser asks for the username (`officer` by default)
+  and your `ADMIN_PASSWORD`.
 
 Use `npm run dev` for development. The production build is the one to demonstrate, since it
 has no development overlay.
@@ -40,11 +42,11 @@ has no development overlay.
 
 | Check                                                     | Result                                                                                                                                                           |
 | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit tests (`npm test`)                                   | 239 passing across 33 files, including the seed data's duplicate groups, urgent safety cases, and the officer rules                                              |
+| Unit tests (`npm test`)                                   | 247 passing across 34 files, including the seed data's duplicate groups, urgent safety cases, and the officer rules                                              |
 | Lint, typecheck, formatting                               | Pass, with zero warnings allowed                                                                                                                                 |
 | Production build                                          | Passes with zero warnings                                                                                                                                        |
 | Dependency audit                                          | Zero known vulnerabilities                                                                                                                                       |
-| axe-core accessibility audit                              | Zero violations on every screen checked, including the officer pages signed in                                                                                   |
+| axe-core accessibility audit                              | Zero violations on all seven screens checked, including colour contrast and the officer pages signed in                                                          |
 | Lighthouse, mobile (`/report`)                            | Performance 91, accessibility 100, best practices 100, SEO 100                                                                                                   |
 | Lighthouse, mobile (`/track`)                             | Performance 96, accessibility 100, best practices 100. SEO is lower on purpose: tracking pages are kept out of search engines because they hold personal details |
 | Browser flows, headless Chrome at phone and desktop sizes | Submission with photo, the full officer workflow, and the citizen's view after an officer action                                                                 |
@@ -108,6 +110,25 @@ without a server or a browser.
 - **Browser protections:** Content-Security-Policy, `X-Frame-Options: DENY`, `nosniff`, a strict
   referrer policy, and a permissions policy that allows geolocation only for this site.
 
+## Design
+
+One light theme: a warm off-white page, white cards, and a deep civic green for the header,
+buttons and links. The green is kept apart from the priority colours (red, orange and amber), so
+urgency always stands out. The theme is defined once, in `src/app/globals.css`, and buttons share
+the styles in `src/components/ui/button-styles.ts`.
+
+## Satellite imagery (Google Earth Engine)
+
+The officer map can show satellite imagery from Google Earth Engine: a cloud-filtered Sentinel-2
+true-colour composite of the last 90 days, rendered tile by tile for the area being viewed. A
+layer button switches between satellite and the OpenStreetMap street map. This is recent imagery,
+not a live camera feed.
+
+To turn it on, you need a Google Cloud project registered with Earth Engine and a service account
+with access to it. Put the key file in `secrets/` (git-ignored) and set
+`GOOGLE_EARTH_ENGINE_PROJECT` and `GOOGLE_EARTH_ENGINE_KEY_FILE`. Without them, or if Earth Engine
+fails, the map shows the street map only, and nothing else changes.
+
 ## Accessibility
 
 - Every control has a visible label. Errors are linked to their fields with `aria-describedby`,
@@ -163,6 +184,8 @@ See [.env.example](.env.example). Put real values in `.env.local`, which is git-
 - `ADMIN_USERNAME` (optional): defaults to `officer`.
 - `ANTHROPIC_API_KEY` (optional): enables Claude for categories, summaries and briefs.
 - `NEXT_PUBLIC_APP_NAME` (optional): the page title.
+- `GOOGLE_EARTH_ENGINE_PROJECT` and `GOOGLE_EARTH_ENGINE_KEY_FILE` (optional): turn on satellite
+  imagery on the officer map.
 
 Runtime data lives in `data/` and is git-ignored. Delete it to reseed the demo with recent data.
 

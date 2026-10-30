@@ -75,6 +75,11 @@ next. It is written for judges, officers and anyone deciding whether to trust th
 - **Basic credentials are only encoded.** Use HTTPS in any real deployment.
 - **Content-Security-Policy allows inline scripts.** Next.js needs them for hydration. A nonce
   based policy would be stricter.
+- **Satellite imagery has not been seen working.** The Google Earth Engine layer was built against
+  the official client and tested for every failure path, including an invalid key passing through
+  the real client. We had no Earth Engine credentials, so no imagery was ever displayed. It is also
+  not live: it is a composite of Sentinel-2 images from the last 90 days. Earth Engine is free for
+  research and non-commercial use; other use needs a commercial licence.
 - **Map tiles come from OpenStreetMap.** The map needs internet access, and that provider's
   tile policy is meant for light use. A deployment should use a tile provider it has a
   contract with.

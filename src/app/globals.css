@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * CivicTrack uses one light theme: a warm off-white page, white cards, and a deep civic green
+ * for navigation and actions. The green is kept away from the priority colours (red, orange,
+ * amber), so urgency always stands out. Every brand shade used on text passes WCAG AA contrast
+ * on both white and the off-white page.
+ */
+@theme {
+  --color-canvas: #f7f6f1;
+  --color-brand-50: #eef6f1;
+  --color-brand-100: #d6eadd;
+  --color-brand-200: #acd3bb;
+  --color-brand-600: #2b6a48;
+  --color-brand-700: #1d5a3b;
+  --color-brand-800: #15452d;
+  --color-brand-900: #0d3220;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+:root {
+  /* Native controls such as selects and date pickers stay light, even on a dark-mode device. */
+  color-scheme: light;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-canvas);
+  color: #18181b;
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
 }

@@ -13,13 +13,11 @@ export function SummaryCards({ stats }: { stats: DashboardStats }) {
       {CARDS.map((card) => (
         <div
           key={card.key}
-          className="flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white p-4"
         >
-          <dt className="text-sm font-medium text-zinc-700 dark:text-zinc-300">{card.label}</dt>
-          <dd className="text-3xl font-semibold text-zinc-950 dark:text-zinc-50">
-            {stats[card.key]}
-          </dd>
-          <dd className="text-xs text-zinc-600 dark:text-zinc-400">{card.hint}</dd>
+          <dt className="text-sm font-medium text-zinc-700">{card.label}</dt>
+          <dd className="text-3xl font-semibold text-zinc-950">{stats[card.key]}</dd>
+          <dd className="text-xs text-zinc-600">{card.hint}</dd>
         </div>
       ))}
     </dl>

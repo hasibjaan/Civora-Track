@@ -14,10 +14,10 @@ export function HistoryList({ entries }: { entries: readonly HistoryEntry[] }) {
       {[...entries].reverse().map((entry, index) => (
         <li
           key={`${entry.at}-${entry.type}-${index}`}
-          className="flex flex-col gap-1 border-l-2 border-zinc-300 pl-4 dark:border-zinc-700"
+          className="flex flex-col gap-1 border-l-2 border-zinc-300 pl-4"
         >
-          <p className="text-base text-zinc-950 dark:text-zinc-50">{describeHistoryEntry(entry)}</p>
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">
+          <p className="text-base text-zinc-950">{describeHistoryEntry(entry)}</p>
+          <p className="text-sm text-zinc-700">
             <time dateTime={entry.at}>{DATE_FORMAT.format(new Date(entry.at))} UTC</time>
             {" · "}
             by {entry.actor}

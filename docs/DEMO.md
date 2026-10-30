@@ -9,6 +9,7 @@ npm install
 cp .env.example .env.local
 # Edit .env.local: set ADMIN_PASSWORD to a phrase of at least 12 characters.
 # Optional: set ANTHROPIC_API_KEY to show AI analysis. The demo works without it.
+# Optional: set GOOGLE_EARTH_ENGINE_PROJECT and GOOGLE_EARTH_ENGINE_KEY_FILE for satellite imagery.
 rm -rf data          # start from the seed
 npm run build
 npm run start        # serves on http://localhost:3000
@@ -26,7 +27,8 @@ happened. This app turns scattered reports into a ranked, explained, trackable q
 
 ## 0:30 Capture a report (phone size)
 
-1. Open http://localhost:3000 and tap **Report a problem**.
+1. Open http://localhost:3000. Point out the two ways in: citizens and officers. Tap
+   **Report a problem** on the citizen card.
 2. Description: `Drain outside 14 Lakeview Road is blocked again. Water spills across the road.`
 3. Category: **Blocked or open drain**.
 4. Location: type coordinates `12.97502` and `77.60102` (device location needs HTTPS or
@@ -41,7 +43,8 @@ by its file signature, not by its name.
 
 ## 1:30 Show how the AI processes it (desktop, `/admin`)
 
-1. Sign in to `/admin`. Find your new report in the queue, and open it.
+1. Go back to the landing page and click **Sign in as an officer**, or use **Officers** in the
+   header. Sign in, find your new report in the queue, and open it.
 2. In **Analysis**, point out:
    - the summary, which is one sentence written from the report;
    - **Why this priority**, with each factor and its points;

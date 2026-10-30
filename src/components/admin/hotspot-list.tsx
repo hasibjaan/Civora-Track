@@ -14,7 +14,7 @@ interface HotspotListProps {
 export function HotspotList({ hotspots, headingId }: HotspotListProps) {
   if (hotspots.length === 0) {
     return (
-      <p className="text-base text-zinc-700 dark:text-zinc-300">
+      <p className="text-base text-zinc-700">
         No hotspots yet. An area appears here once three or more open reports cluster together.
       </p>
     );
@@ -25,18 +25,14 @@ export function HotspotList({ hotspots, headingId }: HotspotListProps) {
       {hotspots.map((hotspot) => (
         <li
           key={hotspot.id}
-          className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          className="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-4"
         >
           <div className="flex items-center justify-between gap-3">
-            <h3 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-              {hotspot.title}
-            </h3>
+            <h3 className="text-base font-semibold text-zinc-950">{hotspot.title}</h3>
             <PriorityBadge level={hotspot.level} />
           </div>
-          <p className="text-sm text-zinc-700 dark:text-zinc-300">{hotspot.description}</p>
-          <p className="font-mono text-xs text-zinc-600 dark:text-zinc-400">
-            {hotspot.reportIds.join(", ")}
-          </p>
+          <p className="text-sm text-zinc-700">{hotspot.description}</p>
+          <p className="font-mono text-xs text-zinc-600">{hotspot.reportIds.join(", ")}</p>
           <BriefView brief={hotspot.brief} />
         </li>
       ))}

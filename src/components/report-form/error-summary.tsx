@@ -20,7 +20,7 @@ export function ErrorSummary({ items }: ErrorSummaryProps) {
   return (
     <div
       role="alert"
-      className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-base text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
+      className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-base text-red-900"
     >
       <p className="font-semibold">Please fix {count} before submitting:</p>
       <ul className="mt-2 list-disc pl-5">

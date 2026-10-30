@@ -8,6 +8,7 @@ import { CATEGORY_IDS, NewReportSchema } from "@/domain/schemas";
 import type { Category } from "@/domain/types";
 import { prepareImageForUpload } from "@/lib/image";
 import { toFieldErrors } from "@/lib/validation";
+import { primaryButton } from "@/components/ui/button-styles";
 
 import { ErrorSummary } from "./error-summary";
 import { FieldError, FieldLabel, inputClassName } from "./form-field";
@@ -148,10 +149,7 @@ export function ReportForm() {
         />
         <div className="flex items-start justify-between gap-3">
           <FieldError id="description-error" message={errors.description} />
-          <p
-            id="description-count"
-            className="ml-auto shrink-0 text-sm text-zinc-600 dark:text-zinc-400"
-          >
+          <p id="description-count" className="ml-auto shrink-0 text-sm text-zinc-600">
             {description.length}/{MAX_DESCRIPTION_LENGTH}
           </p>
         </div>
@@ -187,7 +185,7 @@ export function ReportForm() {
       {submitError && (
         <p
           role="alert"
-          className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-base text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
+          className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-base text-red-900"
         >
           {submitError}
         </p>
@@ -197,7 +195,7 @@ export function ReportForm() {
         type="submit"
         disabled={isSubmitting}
         aria-busy={isSubmitting}
-        className="min-h-14 w-full rounded-lg bg-zinc-900 px-4 py-3 text-lg font-semibold text-white hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-900/40 disabled:opacity-60 dark:bg-zinc-100 dark:text-zinc-900"
+        className={`${primaryButton} w-full`}
       >
         {isSubmitting ? "Submitting..." : "Submit report"}
       </button>
