@@ -33,11 +33,6 @@ export function isAuthorized(authorizationHeader: string | null, expected: Crede
   return usernameMatches && passwordMatches;
 }
 
-/** The username in a Basic header, or null. Used to record which officer made a change. */
-export function usernameFromAuthorization(header: string | null): string | null {
-  return parseBasicCredentials(header)?.username ?? null;
-}
-
 function parseBasicCredentials(header: string | null): Credentials | null {
   if (!header?.startsWith("Basic ")) return null;
 

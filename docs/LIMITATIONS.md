@@ -125,8 +125,8 @@ next. It is written for judges, officers and anyone deciding whether to trust th
   Supabase code is also tested against an in-memory fake of its API. Second, on a real Supabase
   project: the migration created the table and a private bucket with the right limits, the first
   dashboard visit filled the table with the 40 demo reports, and the dashboard, a report page
-  and a citizen page loaded from it. Submitting a report with a photo and officer changes have
-  not yet been run on the real project, only on the stand-in.
+  and a citizen page loaded from it. A report submitted with a photo was then checked by hand
+  on the real project, and the photo uploaded and displayed.
 - **Verified with an invalid key only:** the AI path. We could not call the live model during
   the build. Submissions and briefs were checked with an invalid key, which exercises the
   fallback, and with fake models in the tests. A successful live call has not been observed.

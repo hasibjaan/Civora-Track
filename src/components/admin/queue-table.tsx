@@ -1,17 +1,12 @@
 import Link from "next/link";
 
+import { formatUtcDateTime } from "@/components/format-date";
 import { CATEGORY_LABELS } from "@/domain/categories";
 import { priorityOf } from "@/domain/queue";
 import { STATUS_LABELS } from "@/domain/status";
 import type { Report } from "@/domain/types";
 
 import { PriorityBadge } from "./priority-badge";
-
-const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "UTC",
-});
 
 export function QueueTable({ reports }: { reports: readonly Report[] }) {
   if (reports.length === 0) {
@@ -81,9 +76,7 @@ export function QueueTable({ reports }: { reports: readonly Report[] }) {
                   {report.location.address ?? "No landmark given"}
                 </td>
                 <td className="break-words px-4 py-3 whitespace-nowrap text-zinc-700">
-                  <time dateTime={report.reportedAt}>
-                    {DATE_FORMAT.format(new Date(report.reportedAt))}
-                  </time>
+                  <time dateTime={report.reportedAt}>{formatUtcDateTime(report.reportedAt)}</time>
                 </td>
                 <td className="break-words px-4 py-3 text-zinc-700">
                   {STATUS_LABELS[report.status]}

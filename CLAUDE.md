@@ -186,6 +186,6 @@ from the rest of the app.
 - [x] Phase 7 (loading, error and not-found states, skip link, empty states, cleanup)
 - [x] Phase 8 (quality gate, independent review and fixes, README, demo script, limitations, cold-start rehearsals)
 - [x] Shared storage in Supabase (reports table, private photo bucket) and the Vercel deploy
-      guide (`docs/DEPLOY.md`). Reads and seeding verified on the real project; submissions,
-      photo uploads and officer changes so far only against a local stand-in.
+      guide (`docs/DEPLOY.md`). Reads, seeding and a submission with a photo verified on the
+      real project.
 - [x] Renamed to Civora, tagline "Your City. Your Voice. Your Change" (`src/components/brand.ts`)

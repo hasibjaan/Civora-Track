@@ -35,22 +35,40 @@ export default function DashboardPage() {
 
 1. Create `src/app/api/<name>/route.ts`.
 2. Export named HTTP methods (`GET`, `POST`, ...).
-3. Validate the body with `zod`. Return `400` on bad input.
-4. Keep secrets on the server only.
+3. Read the body with `readJsonBody`, which caps its size while streaming, and validate it
+   with `zod`. Return `400` with field errors on bad input. `src/app/api/reports/route.ts` is
+   the full example, with rate limiting and generic error messages.
+4. Keep secrets on the server only. Officer endpoints go under `/api/admin`, behind the proxy.
 
 ```ts
 // src/app/api/items/route.ts
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { readJsonBody } from "@/lib/request-body";
+import { toFieldErrors } from "@/lib/validation";
+
 const ItemSchema = z.object({
   name: z.string().min(1).max(100),
 });
 
 export async function POST(request: Request) {
-  const parsed = ItemSchema.safeParse(await request.json());
+  let body: unknown;
+  try {
+    body = await readJsonBody(request, 16 * 1024);
+  } catch {
+    return NextResponse.json({ error: "Send a small JSON body." }, { status: 400 });
+  }
+
+  const parsed = ItemSchema.safeParse(body);
   if (!parsed.success) {
-    return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 });
+    return NextResponse.json(
+      {
+        error: "Please fix the highlighted fields.",
+        fieldErrors: toFieldErrors(parsed.error.issues),
+      },
+      { status: 400 },
+    );
   }
   return NextResponse.json({ item: parsed.data }, { status: 201 });
 }
@@ -70,14 +88,12 @@ export async function POST(request: Request) {
 
 import { useState } from "react";
 
+import { primaryButton } from "@/components/ui/button-styles";
+
 export function Counter() {
   const [count, setCount] = useState(0);
   return (
-    <button
-      type="button"
-      onClick={() => setCount((c) => c + 1)}
-      className="rounded-md bg-zinc-900 px-4 py-2 text-white"
-    >
+    <button type="button" onClick={() => setCount((c) => c + 1)} className={primaryButton}>
       Clicked {count}
     </button>
   );

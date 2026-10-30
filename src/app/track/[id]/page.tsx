@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 
 import { buildCitizenView } from "@/application/citizen-view";
+import { formatUtcDateTime } from "@/components/format-date";
 import { reportRepository } from "@/data";
 import { TRACKING_ID_PATTERN } from "@/domain/schemas";
 
@@ -15,12 +16,6 @@ export const metadata: Metadata = {
 // Status changes constantly, so this page always renders from live data. Blocking on the
 // server keeps the 404 status code correct when a report does not exist.
 export const instant = false;
-
-const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "UTC",
-});
 
 export default async function TrackPage({ params }: PageProps<"/track/[id]">) {
   const { id } = await params;
@@ -41,9 +36,7 @@ export default async function TrackPage({ params }: PageProps<"/track/[id]">) {
         </h1>
         <p className="text-sm text-zinc-700">
           Last updated{" "}
-          <time dateTime={view.lastUpdated}>
-            {DATE_FORMAT.format(new Date(view.lastUpdated))} UTC
-          </time>
+          <time dateTime={view.lastUpdated}>{formatUtcDateTime(view.lastUpdated)} UTC</time>
         </p>
       </header>
 
@@ -73,7 +66,7 @@ export default async function TrackPage({ params }: PageProps<"/track/[id]">) {
             >
               <p className="text-base text-zinc-950">{item.text}</p>
               <time dateTime={item.at} className="text-sm text-zinc-700">
-                {DATE_FORMAT.format(new Date(item.at))} UTC
+                {formatUtcDateTime(item.at)} UTC
               </time>
             </li>
           ))}

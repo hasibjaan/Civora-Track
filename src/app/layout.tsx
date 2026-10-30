@@ -12,7 +12,8 @@ const display = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   style: ["normal", "italic"],
-  axes: ["opsz", "SOFT"],
+  // Optical sizing shapes large headlines and small headings differently.
+  axes: ["opsz"],
 });
 
 const body = Figtree({

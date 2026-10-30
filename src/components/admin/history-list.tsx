@@ -1,11 +1,6 @@
 import { describeHistoryEntry } from "@/application/history";
+import { formatUtcDateTime } from "@/components/format-date";
 import type { HistoryEntry } from "@/domain/types";
-
-const DATE_FORMAT = new Intl.DateTimeFormat("en-GB", {
-  dateStyle: "medium",
-  timeStyle: "short",
-  timeZone: "UTC",
-});
 
 /** Every change to a report, newest first, with who made it and when. */
 export function HistoryList({ entries }: { entries: readonly HistoryEntry[] }) {
@@ -18,7 +13,7 @@ export function HistoryList({ entries }: { entries: readonly HistoryEntry[] }) {
         >
           <p className="text-base text-zinc-950">{describeHistoryEntry(entry)}</p>
           <p className="text-sm text-zinc-700">
-            <time dateTime={entry.at}>{DATE_FORMAT.format(new Date(entry.at))} UTC</time>
+            <time dateTime={entry.at}>{formatUtcDateTime(entry.at)} UTC</time>
             {" · "}
             by {entry.actor}
           </p>

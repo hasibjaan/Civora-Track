@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { CATEGORY_LABELS } from "@/domain/categories";
 import { CATEGORY_IDS, NewReportSchema } from "@/domain/schemas";
-import type { Category } from "@/domain/types";
+import type { Category, NewReport } from "@/domain/types";
 import { prepareImageForUpload } from "@/lib/image";
 import { toFieldErrors } from "@/lib/validation";
 import { primaryButton } from "@/components/ui/button-styles";
@@ -70,32 +70,42 @@ export function ReportForm() {
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    // Disable the button before resizing the photo, which takes a moment, so a double tap
+    // cannot send the same report twice.
+    setIsSubmitting(true);
     setSubmitError(null);
     setErrors({});
 
-    let imageUrl: string | undefined;
-    if (photo) {
-      try {
-        imageUrl = await prepareImageForUpload(photo);
-      } catch {
-        showErrors({ imageUrl: PHOTO_READ_ERROR });
+    try {
+      let imageUrl: string | undefined;
+      if (photo) {
+        try {
+          imageUrl = await prepareImageForUpload(photo);
+        } catch {
+          showErrors({ imageUrl: PHOTO_READ_ERROR });
+          return;
+        }
+      }
+
+      // Same schema the API route uses, so client and server always agree on what is valid.
+      const parsed = NewReportSchema.safeParse({ description, category, location, imageUrl });
+      if (!parsed.success) {
+        showErrors(toFieldErrors(parsed.error.issues));
         return;
       }
-    }
 
-    // Same schema the API route uses, so client and server always agree on what is valid.
-    const parsed = NewReportSchema.safeParse({ description, category, location, imageUrl });
-    if (!parsed.success) {
-      showErrors(toFieldErrors(parsed.error.issues));
-      return;
+      await send(parsed.data);
+    } finally {
+      setIsSubmitting(false);
     }
+  }
 
-    setIsSubmitting(true);
+  async function send(report: NewReport) {
     try {
       const response = await fetch("/api/reports", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify(report),
       });
       const body: unknown = await response.json();
 
@@ -113,8 +123,6 @@ export function ReportForm() {
       setSubmittedId(CreatedResponseSchema.parse(body).id);
     } catch {
       setSubmitError("Could not reach the server. Check your connection and try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   }
 
